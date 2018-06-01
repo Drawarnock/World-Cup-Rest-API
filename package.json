@@ -1,0 +1,14 @@
+{
+  "name": "rest-worldcup",
+  "version": "1.0.0",
+  "description": "rest api FIFA World Cup 2018",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Konrad Wisłocki",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
