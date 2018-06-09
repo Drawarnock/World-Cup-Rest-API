@@ -8,10 +8,7 @@ router.get('/', (req, res, next) => {
         .select('id location stadium dateTime stage homeTeam awayTeam')
         .exec()
         .then(result => {
-            res.status(200).json({
-                message: 'match added',
-                match: result
-            });
+            res.status(200).json(result);
         })
         .catch(err => {
             res.status(500).json(err => {

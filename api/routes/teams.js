@@ -1,12 +1,39 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+    destination: function(req, file,cb) {
+        cb(null, './uploads/');
+    },
+    filename: function(req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+
+    if(file.mimetype === 'image/png' || file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg') {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+}
+
+const upload = multer({
+    storage: storage,
+    limits: {
+    fileSize: 1024 * 512
+    },
+    fileFilter: fileFilter
+});
 
 const Team = require('../models/team');
 
 router.get('/', (req, res, next) => {
     Team.find()
-        .select('id teamName group played wins draws loses point goalsFor goalsAgaint, goalsDiff')
+        .select('id teamName group played wins draws loses point goalsFor goalsAgaint, goalsDiff, teamFlag')
         .exec()
         .then(result => {
             console.log(result);
@@ -23,7 +50,7 @@ router.get('/:teamName', (req, res, next) => {
     const teamName = req.params.teamName;
     Team.find()
         .where({ teamName: teamName})
-        .select('id teamName group played wins draws loses point goalsFor goalsAgaint, goalsDiff')
+        .select('id teamName group played wins draws loses point goalsFor goalsAgaint, goalsDiff teamFlag')
         .exec()
         .then(result => {
             console.log(result);
@@ -45,7 +72,7 @@ router.get('/group/:group', (req, res, next) => {
     const group = req.params.group;
     Team.find()
         .where({ group: group})
-        .select('id teamName group played wins draws loses point goalsFor goalsAgaint, goalsDiff')
+        .select('id teamName group played wins draws loses point goalsFor goalsAgaint, goalsDiff teamFlag')
         .exec()
         .then(result => {
             console.log(result);
@@ -63,7 +90,7 @@ router.get('/group/:group', (req, res, next) => {
         });
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', upload.single('teamFlag'), (req, res, next) => {
     const team = new Team({
         _id: new mongoose.Types.ObjectId(),
         id: req.body.id,
@@ -76,7 +103,8 @@ router.post('/', (req, res, next) => {
         points: req.body.points,
         goalsFor: req.body.goalsFor,
         goalsAgainst: req.body.goalsAgainst,
-        goalsDiff: req.body.goalsDiff
+        goalsDiff: req.body.goalsDiff,
+        teamFlag: req.file.path
     });
 
     team.save()
@@ -94,19 +122,25 @@ router.post('/', (req, res, next) => {
         });
 });
 
-router.patch('/:teamName', (req, res, next) => {
+router.patch('/:teamName', upload.single('teamFlag') ,(req, res, next) => {
+    console.log(req.file)
     const teamName = req.params.teamName;
     const updatedTeam = {};
     for(const prop in req.body) {
         updatedTeam[prop] = req.body[prop];
     }
 
+    if(req.file) {
+        updatedTeam['teamFlag'] = req.file.path
+    }
+    
+
     Team.update({teamName: teamName}, { $set: updatedTeam })
         .exec()
         .then(result => {
             console.log(result);
             res.status(200).json({
-                message: teamName + 'team updated'
+                message: teamName + ' team updated'
             });
         })
         .catch(err => {

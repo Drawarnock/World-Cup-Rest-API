@@ -62,6 +62,10 @@ const teamSchema = new Schema({
         type: Number,
         default:0
     },
+    teamFlag: {
+        type: String,
+        require: true
+    }
 });
 
 module.exports = mongoose.model('Team', teamSchema);

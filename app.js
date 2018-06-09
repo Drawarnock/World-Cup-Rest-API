@@ -14,6 +14,7 @@ const playerRoutes = require('./api/routes/players');
 
 // Developing information about request
 app.use(morgan('dev'));
+app.use('/uploads', express.static('uploads'));
 // Parsing request body
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
