@@ -11,6 +11,7 @@ mongoose.connect('mongodb+srv://Darnock:'+ process.env.MONGODB_ATLAS_PW +'@world
 const teamRoutes = require('./api/routes/teams');
 const matchRoutes = require('./api/routes/matches');
 const playerRoutes = require('./api/routes/players');
+const userRoutes = require('./api/routes/users');
 
 // Developing information about request
 app.use(morgan('dev'));
@@ -34,6 +35,7 @@ app.use((req, res, next) => {
 app.use('/teams', teamRoutes);
 app.use('/matches', matchRoutes);
 app.use('/players', playerRoutes);
+app.use('/users', userRoutes);
 
 // if doesn't match the route, create error object in this middleware and pass it to the error handling middleware
 app.use((req, res, next) => {
