@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Match = require('../models/match');
+const checkAuth = require('../middleware/check-auth');
 
 router.get('/', (req, res, next) => {
     Match.find()
@@ -33,7 +34,7 @@ router.get('/:matchId', (req, res, next) => {
         });
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', checkAuth, (req, res, next) => {
     const match = new Match({
        _id: new mongoose.Types.ObjectId(),
        id: req.body.id,
@@ -63,7 +64,7 @@ router.post('/', (req, res, next) => {
         });
 });
 
-router.patch('/:matchId', (req, res, next) => {
+router.patch('/:matchId', checkAuth, (req, res, next) => {
     const id = req.params.matchId;
     const updatedMatch = {};
     for(const prop in req.body) {
@@ -84,7 +85,7 @@ router.patch('/:matchId', (req, res, next) => {
         });
 });
 
-router.delete('/:matchId', (req, res, next) => {
+router.delete('/:matchId', checkAuth, (req, res, next) => {
     const id = req.params.matchId;
     Match.remove({id: id})
         .exec()

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const checkAuth = require('../middleware/check-auth');
 
 const Player = require('../models/player');
 
@@ -36,7 +37,7 @@ router.get('/:playerId', (req, res, next) => {
         });
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', checkAuth, (req, res, next) => {
     const player = new Player({
         _id: new mongoose.Types.ObjectId(),
         id: req.body.id,
@@ -67,7 +68,7 @@ router.post('/', (req, res, next) => {
         });
 });
 
-router.patch('/:playerId', (req, res, next) => {
+router.patch('/:playerId', checkAuth, (req, res, next) => {
     const id = req.params.playerId;
     const updatedPlayer = {};
     for(const prop in req.body) {
@@ -88,7 +89,7 @@ router.patch('/:playerId', (req, res, next) => {
         });
 });
 
-router.delete('/:playerId', (req, res, next) => {
+router.delete('/:playerId', checkAuth, (req, res, next) => {
     const id = req.params.playerId;
     Player.remove({id: id})
         .exec()

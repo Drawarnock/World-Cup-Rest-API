@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
 const multer = require('multer');
+const checkAuth = require('../middleware/check-auth');
 
 const storage = multer.diskStorage({
     destination: function(req, file,cb) {
@@ -31,7 +32,7 @@ const upload = multer({
 
 const Team = require('../models/team');
 
-router.get('/', (req, res, next) => {
+router.get('/', checkAuth, (req, res, next) => {
     Team.find()
         .select('id teamName group played wins draws loses point goalsFor goalsAgaint, goalsDiff, teamFlag')
         .exec()
@@ -90,7 +91,7 @@ router.get('/group/:group', (req, res, next) => {
         });
 });
 
-router.post('/', upload.single('teamFlag'), (req, res, next) => {
+router.post('/', checkAuth ,upload.single('teamFlag'), (req, res, next) => {
     const team = new Team({
         _id: new mongoose.Types.ObjectId(),
         id: req.body.id,
@@ -122,7 +123,7 @@ router.post('/', upload.single('teamFlag'), (req, res, next) => {
         });
 });
 
-router.patch('/:teamName', upload.single('teamFlag') ,(req, res, next) => {
+router.patch('/:teamName', checkAuth, upload.single('teamFlag') ,(req, res, next) => {
     console.log(req.file)
     const teamName = req.params.teamName;
     const updatedTeam = {};
@@ -150,7 +151,7 @@ router.patch('/:teamName', upload.single('teamFlag') ,(req, res, next) => {
         });
 });
 
-router.delete('/:teamName', (req, res, next) => {
+router.delete('/:teamName', checkAuth, (req, res, next) => {
     const teamName = req.params.teamName;
     Team.remove({teamName: teamName})
         .exec()
