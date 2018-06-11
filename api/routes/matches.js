@@ -1,104 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
-const Match = require('../models/match');
-const checkAuth = require('../middleware/check-auth');
+const checkAuth = require('../middlewares/check-auth');
+const matchesController = require('../controllers/matches');
 
-router.get('/', (req, res, next) => {
-    Match.find()
-        .select('id location stadium dateTime stage homeTeam awayTeam')
-        .exec()
-        .then(result => {
-            res.status(200).json(result);
-        })
-        .catch(err => {
-            res.status(500).json(err => {
-                error: err
-            });
-        });
-});
-
-router.get('/:matchId', (req, res, next) => {
-    const id = req.params.matchId;
-    Match.find()
-        .where({ id: id })
-        .select('id location stadium dateTime stage homeTeam awayTeam')
-        .exec()
-        .then(result => {
-            res.status(200).json(result);
-        })
-        .catch(err => {
-            res.status(500).json(err => {
-                error: err
-            });
-        });
-});
-
-router.post('/', checkAuth, (req, res, next) => {
-    const match = new Match({
-       _id: new mongoose.Types.ObjectId(),
-       id: req.body.id,
-       location: req.body.location,
-       stadium: req.body.stadium,
-       dateTime: req.body.dateTime,
-       completed: req.body.completed,
-       stage: req.body.stage,
-       homeTeam: {
-           teamName: req.body.homeTeam.teamName,
-           group: req.body.homeTeam.group
-        },
-       awayTeam: {
-        teamName: req.body.awayTeam.teamName,
-        group: req.body.awayTeam.group
-        }
-    });
-
-    match.save()
-        .then(result => {
-            res.status(200).json(result);
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: err
-            });
-        });
-});
-
-router.patch('/:matchId', checkAuth, (req, res, next) => {
-    const id = req.params.matchId;
-    const updatedMatch = {};
-    for(const prop in req.body) {
-        updatedMatch[prop] = req.body[prop];
-    }
-    Match.update({id: id}, { $set: updatedMatch })
-        .exec()
-        .then(result => {
-            console.log(result);
-            res.status(200).json({
-                message: 'Match updated'
-            });
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: err
-            });
-        });
-});
-
-router.delete('/:matchId', checkAuth, (req, res, next) => {
-    const id = req.params.matchId;
-    Match.remove({id: id})
-        .exec()
-        .then(result => {
-            res.status(200).json({
-                message: 'match deleted'
-            });
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: err
-            });
-        })
-});
+router.get('/', matchesController.get_all_matches);
+router.get('/:matchId', matchesController.get_match);
+router.post('/', checkAuth, matchesController.create_match);
+router.patch('/:matchId', checkAuth, matchesController.update_match);
+router.delete('/:matchId', checkAuth, matchesController.delete_match);
 
 module.exports = router;
